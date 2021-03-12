@@ -39,12 +39,12 @@ class AsvSim:
         self.throttle = 0.0
         self.rudder = 0.0
         
-        self.envoronment = asv_sim.environment.Environment()
+        self.environment = asv_sim.environment.Environment()
         
         if model == "cw4":
-            self.dynamics = asv_sim.dynamics.Dynamics(asv_sim.cw4.cw4,self.envoronment)
+            self.dynamics = asv_sim.dynamics.Dynamics(asv_sim.cw4.cw4,self.environment)
         elif model == "coastal_surveyor":
-            self.dynamics = asv_sim.dynamics.Dynamics(asv_sim.coastal_surveyor.coastal_surveyor,self.envoronment)
+            self.dynamics = asv_sim.dynamics.Dynamics(asv_sim.coastal_surveyor.coastal_surveyor,self.environment)
         
         self.last_heading_hold_timestamp = None
         self.wallclock_time_step = 0.05
@@ -93,7 +93,7 @@ class AsvSim:
     
     def heading_hold(self,data):
         self.last_heading_hold_timestamp = data.header.stamp
-        print 'heading hold:', data.thrust.type, data.thrust.value
+        print ('heading hold:', data.thrust.type, data.thrust.value)
         # Handle Thrust type==0:Disable, type=1:m/s, type=2:[0-1]
         # Note it is not clear from the documentation if thrust can be <0, 
         # But given that this is a heading-hold message it seems unlikely. 
@@ -111,7 +111,7 @@ class AsvSim:
         if heading_delta<-math.pi:
             heading_delta += math.pi*2.0
         self.rudder = max(-1.0,min(1.0,heading_delta))
-        print self.throttle, self.rudder
+        print (self.throttle, self.rudder)
         
     def update_clock(self):
         self.sim_time += rospy.Duration.from_sec(self.wallclock_time_step*self.time_factor)
@@ -134,7 +134,7 @@ class AsvSim:
                 ss = 'VP_STATE_ACTIVE'
             else:
                 ss = 'VP_STATE_PAUSE'
-            print 'not in control: inhibit:',self.inhibit,'state:',ss,'pilot control:',self.pilot_control, event.current_real
+            print ('not in control: inhibit:',self.inhibit,'state:',ss,'pilot control:',self.pilot_control, event.current_real)
         
         self.dynamics.update(self.throttle,self.rudder,event.current_real)
         
